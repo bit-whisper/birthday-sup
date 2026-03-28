@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surprise Birthday Journey</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400..700&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        .font-poppins { font-family: 'Poppins', sans-serif; }
+        .font-playfair { font-family: 'Playfair Display', serif; }
+        .font-caveat { font-family: 'Caveat', cursive; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-15px) rotate(2deg); }
+        }
+        @keyframes float-fast {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-25px) rotate(15deg); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            80% { transform: scale(1.05); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideUpFade {
+            0% { transform: translateY(40px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); }
+            100% { transform: translateY(110vh) rotate(720deg); }
+        }
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 15px rgba(236, 72, 153, 0.4); }
+            50% { box-shadow: 0 0 30px rgba(236, 72, 153, 0.8); }
+        }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes shootingStar {
+            0% { transform: translateX(0) translateY(0) rotate(-45deg); opacity: 1; }
+            100% { transform: translateX(-1000px) translateY(1000px) rotate(-45deg); opacity: 0; }
+        }
+
+        .animate-float { animation: float 4s ease-in-out infinite; }
+        .animate-float-fast { animation: float-fast 2s ease-in-out infinite; }
+        .animate-pop { animation: popIn 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .animate-slide-up { animation: slideUpFade 0.8s ease-out forwards; opacity: 0; }
+        .pulse-button { animation: pulse-glow 2s infinite; }
+        .animate-spin-slow { animation: spin-slow 5s linear infinite; }
+        .bg-animated-gradient { background-size: 200% 200%; animation: gradientBG 10s ease infinite; }
+        .shooting-star { position: absolute; width: 100px; height: 2px; background: linear-gradient(90deg, rgba(255,255,255,1), transparent); animation: shootingStar 3s linear infinite; }
+
+        /* POLAROID 3D FLIP FIXES */
+        .card-flip-container { perspective: 1000px; background: transparent; }
+        .card-flip-inner { position: relative; width: 100%; height: 100%; transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275); transform-style: preserve-3d; }
+        .card-flip-active .card-flip-inner { transform: rotateY(180deg); }
+        .card-face { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; border-radius: 12px; }
+        .card-front { transform: rotateY(0deg); background: white; z-index: 2; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .card-back { transform: rotateY(180deg); background: linear-gradient(to bottom right, #78350f, #92400e); box-shadow: 0 10px 25px -5px rgba(0,0,0,0.2); }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(to right, #ec4899, #8b5cf6, #ec4899);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientBG 5s ease infinite;
+        }
+
+        /* ENVELOPE STYLES */
+        .env-wrapper { position: relative; width: 100%; max-width: 340px; height: 220px; margin: 0 auto; cursor: pointer; perspective: 1000px; }
+        .env-back { position: absolute; inset: 0; background-color: #be123c; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.3); }
+        .env-letter { position: absolute; left: 12px; right: 12px; bottom: 12px; top: 12px; background-image: url('https://www.transparenttextures.com/patterns/cream-paper.png'); background-color: #fffdf2; border-radius: 6px; box-shadow: 0 0 15px rgba(0,0,0,0.15); z-index: 2; transition: all 1s cubic-bezier(0.25, 1, 0.5, 1); }
+        .env-wrapper.open .env-letter { transform: translateY(-100px); }
+        .env-wrapper.open .env-letter.expanded { position: fixed; inset: 15px; z-index: 50; padding: 30px; transform: translateY(0); overflow-y: auto; cursor: default; border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        @media (min-width: 768px) { .env-wrapper.open .env-letter.expanded { inset: 10%; padding: 60px; } }
+        .env-flap { position: absolute; top: 0; left: 0; width: 0; height: 0; border-left: 170px solid transparent; border-right: 170px solid transparent; border-top: 130px solid #fb7185; z-index: 4; transform-origin: top; transition: transform 0.6s ease-in-out; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;}
+        .env-wrapper.open .env-flap { transform: rotateX(180deg); z-index: 1; }
+        .env-pocket-left { position: absolute; bottom: 0; left: 0; width: 0; height: 0; border-bottom: 130px solid #fda4af; border-left: 170px solid #fda4af; border-right: 170px solid transparent; border-top: 100px solid transparent; z-index: 3; border-bottom-left-radius: 12px; }
+        .env-pocket-right { position: absolute; bottom: 0; right: 0; width: 0; height: 0; border-bottom: 130px solid #fda4af; border-right: 170px solid #fda4af; border-left: 170px solid transparent; border-top: 100px solid transparent; z-index: 3; border-bottom-right-radius: 12px;}
+        .env-pocket-bottom { position: absolute; bottom: 0; left: 0; width: 0; height: 0; border-bottom: 110px solid #fecdd3; border-left: 170px solid transparent; border-right: 170px solid transparent; z-index: 4; border-bottom-left-radius: 12px; border-bottom-right-radius: 12px;}
+    </style>
+</head>
+<body class="bg-slate-950 font-poppins overflow-x-hidden relative selection:bg-pink-500 selection:text-white m-0 p-0">
+
+    <!-- Background Elements -->
+    <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 mix-blend-overlay pointer-events-none z-0 fixed"></div>
+    
+    <div id="confetti-container" class="fixed inset-0 pointer-events-none overflow-hidden z-50 hidden"></div>
+
+    <!-- SCREENS CONTAINER -->
+    <div id="app" class="relative z-10 w-full min-h-[100dvh]">
+
+        <!-- ================= SCREEN 0: The Mysterious Lock ================= -->
+        <div id="screen-0" class="screen flex min-h-[100dvh] w-full flex-col items-center justify-center bg-slate-900 transition-colors duration-1000 p-6 relative overflow-x-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-900/30 to-purple-900/30 bg-animated-gradient"></div>
+            
+            <div class="z-10 flex flex-col items-center text-center animate-pop">
+                <div class="mb-8 p-8 rounded-full bg-slate-800/60 border border-slate-600 shadow-2xl backdrop-blur-sm relative">
+                    <div class="absolute -inset-2 bg-pink-500/20 rounded-full blur-xl animate-pulse"></div>
+                    <!-- Toggle these icons via JS -->
+                    <i data-lucide="lock" id="icon-lock" class="w-16 h-16 text-slate-300 relative z-10"></i>
+                    <i data-lucide="unlock" id="icon-unlock" class="w-16 h-16 text-pink-400 animate-bounce relative z-10 hidden"></i>
+                </div>
+                
+                <h1 class="text-4xl md:text-6xl font-playfair font-bold text-white mb-4 tracking-tight">
+                    Highly Classified
+                </h1>
+                <p class="text-slate-300 mb-12 max-w-md text-lg font-light">
+                    This digital package contains extremely precious memories. Fingerprint or magical tap required to open.
+                </p>
+                
+                <button id="btn-unlock" class="relative group px-10 py-4 rounded-full font-bold text-lg transition-all duration-500 overflow-hidden pulse-button bg-white text-slate-900 hover:bg-pink-50">
+                    <span class="relative z-10 flex items-center gap-2">
+                        <span id="unlock-text">Tap to Unlock</span>
+                        <i data-lucide="sparkles" id="unlock-sparkles" class="w-5 h-5 group-hover:animate-spin"></i>
+                    </span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 1: Terminal / Chiku ================= -->
+        <div id="screen-1" class="screen hidden min-h-[100dvh] w-full bg-black text-green-400 font-mono p-6 md:p-12 flex flex-col justify-center relative overflow-x-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-green-500/50 shadow-[0_0_20px_rgba(34,197,94,0.8)] animate-pulse"></div>
+            <div class="max-w-3xl mx-auto w-full relative z-10">
+                <i data-lucide="terminal" class="w-10 h-10 mb-8 text-green-500 animate-pulse"></i>
+                <div id="terminal-lines" class="space-y-5 text-lg md:text-2xl inline-block">
+                    <!-- Lines added via JS -->
+                </div>
+                <span class="animate-pulse inline-block w-4 h-7 bg-green-400 ml-2 align-middle"></span>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 2: The Mini-Game / Kaju Katli ================= -->
+        <div id="screen-2" class="screen hidden min-h-[100dvh] w-full bg-gradient-to-br from-pink-200 via-purple-200 to-indigo-200 bg-animated-gradient flex flex-col items-center p-4 md:p-6 relative overflow-x-hidden">
+            <div class="z-10 text-center mt-8 md:mt-12 mb-6 md:mb-8 animate-slide-up pointer-events-none">
+                <h2 class="text-3xl md:text-6xl font-playfair font-bold text-slate-800 mb-2 md:mb-4">
+                    Hold on, <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-purple-600">Kaju Katli!</span> ✨
+                </h2>
+                <p class="text-base md:text-xl text-slate-700 max-w-lg mx-auto font-medium px-2">
+                    Before we proceed to the main event, catch all 5 floating hearts to prove it's really you!
+                </p>
+                
+                <div class="mt-4 md:mt-8 flex justify-center gap-2 md:gap-3" id="header-hearts">
+                    <!-- 5 hearts -->
+                    <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 transition-all duration-500 text-white/50"></i>
+                    <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 transition-all duration-500 text-white/50"></i>
+                    <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 transition-all duration-500 text-white/50"></i>
+                    <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 transition-all duration-500 text-white/50"></i>
+                    <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 transition-all duration-500 text-white/50"></i>
+                </div>
+            </div>
+
+            <!-- Floating Hearts inserted here via JS -->
+            <div id="floating-hearts-container" class="flex-grow w-full relative min-h-[40vh]"></div>
+
+            <button id="btn-minigame-next" onclick="nextStep()" class="hidden relative mt-auto mb-10 z-30 animate-pop px-8 py-4 md:px-10 md:py-5 bg-gradient-to-r from-pink-500 to-purple-500 text-white rounded-full font-bold text-lg md:text-xl shadow-[0_10px_30px_rgba(219,39,119,0.5)] hover:shadow-[0_15px_40px_rgba(219,39,119,0.7)] hover:-translate-y-2 transition-all flex items-center gap-2 md:gap-3">
+                Next Challenge <i data-lucide="arrow-right" class="w-5 h-5 md:w-6 md:h-6 animate-bounce"></i>
+            </button>
+        </div>
+
+        <!-- ================= SCREEN 3: Our Soundtrack ================= -->
+        <div id="screen-3" class="screen hidden min-h-[100dvh] w-full bg-slate-900 flex flex-col items-center justify-center p-6 relative overflow-x-hidden transition-colors duration-1000">
+            <div class="absolute inset-0 bg-gradient-to-t from-indigo-900/50 to-transparent"></div>
+            
+            <div id="music-notes-container" class="absolute inset-0 pointer-events-none"></div>
+            
+            <div class="z-10 flex flex-col items-center text-center animate-slide-up my-auto">
+                <h2 class="text-4xl md:text-6xl font-playfair font-bold text-white mb-12 mt-8">Setting the Mood 🎵</h2>
+                
+                <div class="relative mb-12 group">
+                    <div id="disc-glow" class="absolute -inset-6 bg-purple-500/30 rounded-full blur-2xl transition-all duration-1000 opacity-50 group-hover:opacity-80"></div>
+                    <div id="disc-spin" class="w-56 h-56 md:w-72 md:h-72 rounded-full bg-slate-950 border-8 border-slate-800 flex items-center justify-center shadow-2xl relative z-10 transition-transform duration-1000 group-hover:scale-105">
+                        <div class="w-20 h-20 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 flex items-center justify-center shadow-inner">
+                            <div class="w-5 h-5 rounded-full bg-slate-950"></div>
+                        </div>
+                        <i data-lucide="disc" class="absolute w-full h-full text-white/5 p-3"></i>
+                    </div>
+                </div>
+
+                <button id="btn-play-music" class="px-10 py-4 bg-gradient-to-r from-purple-600 to-indigo-600 text-white rounded-full font-bold text-xl shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-3 pulse-button mb-8">
+                    Play Our Soundtrack <i data-lucide="music" class="w-6 h-6"></i>
+                </button>
+                <p id="text-vibing" class="hidden text-pink-300 text-2xl animate-pulse font-caveat tracking-wider mb-8">Vibing... 💖</p>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 4: Reasons Generator ================= -->
+        <div id="screen-4" class="screen hidden min-h-[100dvh] w-full bg-emerald-950 flex flex-col items-center justify-center p-4 md:p-6 relative overflow-x-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.2)_0%,transparent_70%)] fixed"></div>
+            
+            <div class="z-10 text-center w-full max-w-3xl animate-slide-up my-auto py-10" style="animation-delay: 0.2s">
+                <h2 class="text-3xl md:text-6xl font-playfair font-bold text-white mb-6 md:mb-10">Why do I love you? 🤔</h2>
+                
+                <div class="glass-card p-4 md:p-10 rounded-2xl md:rounded-3xl mb-8 md:mb-12 h-36 md:h-48 flex items-center justify-center shadow-2xl relative overflow-hidden group border-emerald-500/30">
+                    <div class="absolute inset-0 bg-emerald-500/10 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <p id="generator-text" class="text-xl md:text-4xl font-bold text-emerald-300 transition-all duration-200 px-2 blur-0 scale-100 opacity-100">
+                        Let's find out...
+                    </p>
+                </div>
+
+                <button id="btn-spin-reason" class="px-6 py-4 md:px-10 md:py-5 bg-emerald-500 text-white rounded-full font-bold text-lg md:text-xl hover:bg-emerald-400 transition-all shadow-[0_0_30px_rgba(16,185,129,0.5)] hover:shadow-[0_0_50px_rgba(16,185,129,0.8)] flex items-center gap-2 md:gap-3 mx-auto pulse-button">
+                    <i data-lucide="shuffle" class="w-5 h-5 md:w-6 md:h-6"></i> Generate Reason
+                </button>
+                
+                <div id="generator-next-container" class="hidden animate-pop flex flex-col items-center mt-6">
+                    <p class="text-emerald-300 mb-6 md:mb-8 font-caveat text-3xl md:text-4xl">Actually, it's all of the above. 🥰</p>
+                    <button onclick="nextStep()" class="px-8 py-3 md:px-10 md:py-4 bg-white text-emerald-900 rounded-full font-bold text-lg md:text-xl hover:bg-emerald-50 transition-all shadow-xl hover:-translate-y-1 flex items-center gap-2">
+                        Next <i data-lucide="arrow-right" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 5: Starry Night ================= -->
+        <div id="screen-5" class="screen hidden min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 md:p-6 relative transition-colors duration-1000 overflow-x-hidden bg-sky-100">
+            
+            <div id="stars-bg" class="hidden">
+                <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-100 mix-blend-screen pointer-events-none animate-pulse fixed"></div>
+                <div class="shooting-star top-[20%] left-[80%]"></div>
+                <div class="shooting-star top-[40%] left-[90%]" style="animation-delay: 1.5s"></div>
+            </div>
+
+            <div class="z-10 text-center flex flex-col items-center my-auto py-10">
+                <div id="lights-on-content" class="animate-slide-up">
+                    <h2 class="text-3xl md:text-4xl font-playfair font-bold text-sky-900 mb-8 md:mb-10">It's a bit too bright in here...</h2>
+                    <button id="btn-lights-off" class="px-6 py-4 md:px-10 md:py-5 bg-sky-900 text-white rounded-full font-bold text-lg md:text-xl hover:bg-sky-800 transition-all shadow-xl hover:-translate-y-1 flex items-center gap-2 md:gap-3 pulse-button">
+                        <i data-lucide="moon" class="w-5 h-5 md:w-6 md:h-6"></i> Turn off the lights
+                    </button>
+                </div>
+                
+                <div id="lights-off-content" class="transition-all duration-1000 transform flex flex-col items-center opacity-0 translate-y-10 hidden">
+                    <i data-lucide="quote" class="w-8 h-8 md:w-12 md:h-12 text-yellow-200/50 mb-6 md:mb-8"></i>
+                    <h2 class="text-2xl md:text-6xl font-playfair font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-yellow-300 to-yellow-500 mb-8 md:mb-12 max-w-4xl leading-relaxed tracking-wide px-2">
+                        Out of billions of stars in the universe, I'm the luckiest to have found my brightest one. ✨
+                    </h2>
+                    <button onclick="nextStep()" class="px-8 py-3 md:px-10 md:py-4 border-2 border-yellow-500/50 text-yellow-300 rounded-full font-bold text-lg md:text-xl hover:bg-yellow-500/20 transition-all flex items-center gap-2 md:gap-3">
+                        Keep Going <i data-lucide="arrow-right" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 6: Memory Vault ================= -->
+        <div id="screen-6" class="screen hidden min-h-[100dvh] w-full bg-[#fdfbf7] flex flex-col items-center justify-center p-4 md:p-6 relative overflow-x-hidden">
+            <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cream-paper.png')] opacity-50 mix-blend-multiply pointer-events-none fixed"></div>
+
+            <div class="z-10 text-center w-full max-w-6xl py-10 md:py-12 mt-4">
+                <h2 class="text-4xl md:text-6xl font-playfair font-bold text-amber-900 mb-2 md:mb-4 animate-slide-up">Memory Vault 📸</h2>
+                <p class="text-amber-700/80 mb-8 md:mb-12 text-2xl md:text-3xl font-caveat animate-slide-up" style="animation-delay: 0.2s">Tap each polaroid to reveal the message behind it...</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-14 mb-10 md:mb-16 px-2 md:px-4" id="polaroid-container">
+                    <!-- Cards injected via JS -->
+                </div>
+
+                <div id="btn-memories-next" class="transition-opacity duration-1000 opacity-0 pointer-events-none mb-10">
+                    <button onclick="nextStep()" class="mx-auto px-8 py-3 md:px-10 md:py-4 bg-amber-800 text-white rounded-full font-bold text-lg md:text-xl hover:bg-amber-700 transition-all shadow-xl hover:-translate-y-1 flex items-center gap-2 md:gap-3">
+                        Move Forward <i data-lucide="arrow-right" class="w-5 h-5 md:w-6 md:h-6"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 7: Love Coupons ================= -->
+        <div id="screen-7" class="screen hidden min-h-[100dvh] w-full bg-rose-950 flex flex-col items-center justify-center p-4 md:p-6 relative overflow-x-hidden">
+            <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(244,63,94,0.3)_0%,transparent_80%)] fixed"></div>
+
+            <div class="z-10 text-center w-full max-w-3xl animate-slide-up py-10 my-auto">
+                <h2 class="text-4xl md:text-6xl font-playfair font-bold text-rose-200 mb-2 md:mb-4">Birthday Perks 🎟️</h2>
+                <p class="text-rose-300 mb-8 md:mb-12 text-base md:text-xl font-light px-2">Tap to claim your exclusive, non-refundable birthday coupons!</p>
+                
+                <div class="space-y-4 md:space-y-6 mb-8 md:mb-12 perspective-1000" id="coupons-container">
+                    <!-- Coupons injected via JS -->
+                </div>
+
+                <div id="btn-coupons-next" class="transition-all duration-1000 transform opacity-0 translate-y-10 pointer-events-none mt-6">
+                    <p class="text-rose-300 mb-6 md:mb-8 font-caveat text-2xl md:text-3xl">All claimed! Keep them safe. 😉</p>
+                    <button onclick="nextStep()" class="px-8 py-4 md:px-10 md:py-5 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full font-bold text-lg md:text-xl hover:scale-105 transition-all flex items-center gap-2 md:gap-3 mx-auto shadow-[0_0_40px_rgba(244,63,94,0.6)] pulse-button">
+                        Now, the REAL surprise <i data-lucide="gift" class="w-5 h-5 md:w-6 md:h-6 animate-bounce"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 8: The Big Reveal / Sweetu & Date ================= -->
+        <div id="screen-8" class="screen hidden min-h-[100dvh] w-full bg-slate-900 flex flex-col items-center justify-center p-4 md:p-6 relative overflow-x-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-purple-900/60 via-pink-900/40 to-slate-900 bg-animated-gradient fixed"></div>
+            
+            <div class="z-20 text-center animate-pop flex flex-col items-center my-auto py-10">
+                <div class="relative mb-8 md:mb-10">
+                    <div class="absolute -inset-4 md:-inset-8 bg-pink-500/30 rounded-full blur-2xl animate-pulse"></div>
+                    <i data-lucide="cake" class="w-24 h-24 md:w-40 md:h-40 text-pink-400 relative z-10 animate-float drop-shadow-[0_0_15px_rgba(236,72,153,0.8)]"></i>
+                </div>
+                
+                <p class="text-lg md:text-3xl text-pink-300 font-semibold mb-2 md:mb-4 tracking-[0.2em] md:tracking-[0.3em] uppercase font-poppins">
+                    Happy 20th Birthday
+                </p>
+                
+                <h1 class="text-5xl md:text-9xl font-playfair font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-pink-100 to-white mb-6 md:mb-8 drop-shadow-[0_5px_15px_rgba(236,72,153,0.6)] tracking-tight py-2">
+                    SWEETU
+                </h1>
+                
+                <div class="glass-card px-6 py-4 md:px-10 md:py-6 rounded-2xl md:rounded-3xl mb-10 md:mb-16 shadow-2xl border-pink-400/40 transform hover:scale-105 transition-transform duration-500 w-full max-w-sm md:max-w-md mx-auto">
+                    <p class="text-base md:text-2xl text-slate-200 font-light mb-1 md:mb-2">
+                        Making the world beautiful since
+                    </p>
+                    <p class="text-3xl md:text-5xl font-bold text-gradient font-playfair mt-1 md:mt-2">
+                        29-03-2006
+                    </p>
+                </div>
+                
+                <button onclick="nextStep()" class="group flex items-center gap-2 md:gap-3 text-pink-200 hover:text-white transition-colors text-xl md:text-2xl font-caveat border-b-2 border-pink-500/30 hover:border-pink-500 pb-1 md:pb-2">
+                    I wrote something for you <i data-lucide="arrow-right" class="w-5 h-5 md:w-6 md:h-6 group-hover:translate-x-2 transition-transform"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= SCREEN 9: The Heartfelt Letter ================= -->
+        <div id="screen-9" class="screen hidden min-h-[100dvh] w-full bg-rose-50 flex flex-col items-center justify-center p-4 md:p-6 relative overflow-x-hidden">
+            
+            <div id="emojis-container" class="absolute inset-0 pointer-events-none fixed">
+                <!-- Emojis injected via JS -->
+            </div>
+
+            <div id="envelope-prompt" class="absolute top-16 md:top-20 text-center animate-slide-up z-10 pointer-events-none px-4">
+                <h2 class="text-2xl md:text-3xl font-playfair text-rose-800 font-bold mb-2">A special delivery...</h2>
+                <p class="text-rose-500 font-caveat text-2xl md:text-3xl">Tap the envelope to open</p>
+            </div>
+
+            <div id="envelope-wrapper" class="env-wrapper animate-pop mt-32 md:mt-0 max-w-[300px] md:max-w-[340px] my-auto">
+                <div class="env-back"></div>
+                
+                <!-- The Letter -->
+                <div id="env-letter" class="env-letter flex flex-col items-center">
+                    <div id="letter-content" class="w-full transition-opacity duration-1000 opacity-0">
+                        <div class="flex justify-center mb-6 md:mb-8">
+                            <div class="w-12 h-12 md:w-16 md:h-16 rounded-full bg-rose-100 flex items-center justify-center">
+                                <i data-lucide="mail" class="w-6 h-6 md:w-8 md:h-8 text-rose-500"></i>
+                            </div>
+                        </div>
+
+                        <h2 class="text-3xl md:text-5xl font-bold text-slate-800 mb-6 md:mb-10 text-center font-playfair">
+                            To My Everything,
+                        </h2>
+                        
+                        <div class="space-y-4 md:space-y-6 text-xl md:text-3xl text-slate-700 leading-relaxed font-caveat px-2 md:px-10 max-w-4xl mx-auto text-center md:text-left">
+                            <p>Happy 20th Birthday! 🎉</p>
+                            <p>
+                                From the exact moment you entered my life, everything just made sense. You are my <b class="text-rose-600 font-bold">Chiku</b> when I want to tease you, my sweet <b class="text-rose-600 font-bold">Kaju Katli</b> because you're my favorite treat in the entire world, and my <b class="text-rose-600 font-bold">Sweetu</b> because you have the kindest, purest heart I have ever known.
+                            </p>
+                            <p>
+                                20 years ago on <b>29-03-2006</b>, the universe decided to create its absolute finest masterpiece. I'm just so incredibly lucky and grateful that I get to celebrate this day with you.
+                            </p>
+                            <p>
+                                I hope this little digital surprise made you smile as much as you make me smile every single day. Here's to a lifetime of birthdays together, infinite memories, and endless love.
+                            </p>
+                            <p class="pt-6 md:pt-10 font-bold text-3xl md:text-4xl text-center text-rose-600 mb-6 md:mb-10">
+                                I love you to the moon and back. ❤️
+                            </p>
+                        </div>
+
+                        <div class="mt-8 md:mt-12 flex justify-center pb-6 md:pb-10">
+                            <div class="flex gap-3 md:gap-4">
+                                <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 text-rose-500 fill-rose-500 animate-pulse" style="animation-delay: 0.6s"></i>
+                                <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 text-rose-500 fill-rose-500 animate-pulse" style="animation-delay: 0.6s"></i>
+                                <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 text-rose-500 fill-rose-500 animate-pulse" style="animation-delay: 0.9s"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="letter-seal" class="absolute inset-0 flex items-center justify-center">
+                        <i data-lucide="heart" class="w-12 h-12 text-rose-200"></i>
+                    </div>
+                </div>
+
+                <!-- Envelope Flaps -->
+                <div class="env-flap"></div>
+                <div class="env-pocket-left"></div>
+                <div class="env-pocket-right"></div>
+                <div class="env-pocket-bottom"></div>
+                
+                <!-- Wax Seal -->
+                <div id="env-wax-seal" class="absolute top-[110px] left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10 w-16 h-16 bg-red-700 rounded-full shadow-lg border-2 border-red-800 flex items-center justify-center animate-pulse">
+                    <i data-lucide="heart" class="w-6 h-6 text-red-300 fill-current"></i>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        let currentStep = 0;
+        const totalScreens = 10;
+
+        function nextStep() {
+            document.getElementById(`screen-${currentStep}`).classList.add('hidden');
+            currentStep++;
+            if (currentStep < totalScreens) {
+                document.getElementById(`screen-${currentStep}`).classList.remove('hidden');
+                initScreenLogic(currentStep);
+                // Scroll to top automatically when navigating to the next page
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // ================= SCREEN INIT LOGIC =================
+        function initScreenLogic(step) {
+            if (step === 1) initTerminal();
+            if (step === 2) initMiniGame();
+            if (step === 6) initMemories();
+            if (step === 7) initCoupons();
+            if (step === 8) initConfetti();
+            if (step === 9) initEnvelope();
+        }
+
+        // --- Screen 0 Logic ---
+        document.getElementById('btn-unlock').addEventListener('click', function() {
+            document.getElementById('icon-lock').classList.add('hidden');
+            document.getElementById('icon-unlock').classList.remove('hidden');
+            
+            this.classList.remove('bg-white', 'text-slate-900', 'hover:bg-pink-50');
+            this.classList.add('bg-pink-500', 'text-white', 'scale-110', 'shadow-[0_0_40px_rgba(236,72,153,0.6)]');
+            
+            document.getElementById('unlock-text').innerText = 'Access Granted';
+            document.getElementById('unlock-sparkles').classList.add('hidden');
+            
+            setTimeout(nextStep, 1200);
+        });
+
+        // --- Screen 1 Logic (Terminal) ---
+        function initTerminal() {
+            const lines = [
+                "> Initializing romantic sequences...",
+                "> Bypassing security firewalls...",
+                "> Scanning heart biometrics...",
+                "> Match found: 100% adorable.",
+                "> Welcome back, Chiku 🥺❤️",
+                "> Decrypting birthday surprise module...",
+                "> Loading complete. Launching..."
+            ];
+            const container = document.getElementById('terminal-lines');
+            let currentLine = 0;
+
+            const interval = setInterval(() => {
+                if (currentLine < lines.length) {
+                    const lineText = lines[currentLine];
+                    const p = document.createElement('p');
+                    p.className = 'animate-slide-up origin-left mb-4';
+                    
+                    if (lineText.includes('Chiku')) {
+                        p.innerHTML = `<span class="text-pink-400 font-bold bg-pink-900/30 px-3 py-1 rounded border border-pink-500/30">${lineText}</span>`;
+                    } else {
+                        p.innerText = lineText;
+                    }
+                    
+                    container.appendChild(p);
+                    currentLine++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(nextStep, 2500);
+                }
+            }, 1000);
+        }
+
+        // --- Screen 2 Logic (Mini-Game) ---
+        function initMiniGame() {
+            const container = document.getElementById('floating-hearts-container');
+            const totalHearts = 5;
+            let caught = 0;
+
+            for (let i = 0; i < totalHearts; i++) {
+                const heartDiv = document.createElement('div');
+                heartDiv.style.top = `${Math.random() * 50 + 20}%`;
+                heartDiv.style.left = `${Math.random() * 70 + 10}%`;
+                heartDiv.style.animationDelay = `${Math.random() * 2}s`;
+                heartDiv.className = 'cursor-pointer animate-float hover:scale-125 transition-transform absolute z-20 p-4';
+                
+                heartDiv.innerHTML = `<i data-lucide="heart" class="w-14 h-14 text-pink-500 fill-pink-400 drop-shadow-xl filter"></i>`;
+                
+                heartDiv.addEventListener('click', function() {
+                    if (!this.dataset.caught) {
+                        this.dataset.caught = "true";
+                        this.classList.add('hidden');
+                        
+                        // Update Header Heart
+                        const headerHearts = document.getElementById('header-hearts').children;
+                        headerHearts[caught].classList.remove('text-white/50');
+                        headerHearts[caught].classList.add('text-pink-500', 'fill-pink-500', 'scale-125', 'drop-shadow-md');
+                        
+                        caught++;
+                        if (caught === totalHearts) {
+                            document.getElementById('btn-minigame-next').classList.remove('hidden');
+                            setTimeout(() => {
+                                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                            }, 100);
+                        }
+                    }
+                });
+                
+                container.appendChild(heartDiv);
+            }
+            lucide.createIcons({root: container});
+        }
+
+        // --- Screen 3 Logic (Music) ---
+        document.getElementById('btn-play-music').addEventListener('click', function() {
+            this.classList.add('hidden');
+            document.getElementById('text-vibing').classList.remove('hidden');
+            
+            document.getElementById('disc-glow').classList.remove('opacity-50', 'group-hover:opacity-80');
+            document.getElementById('disc-glow').classList.add('animate-pulse', 'scale-110', 'opacity-100');
+            
+            document.getElementById('disc-spin').classList.remove('group-hover:scale-105');
+            document.getElementById('disc-spin').classList.add('animate-spin-slow');
+
+            const container = document.getElementById('music-notes-container');
+            for (let i = 0; i < 20; i++) {
+                const note = document.createElement('i');
+                note.setAttribute('data-lucide', 'music');
+                const size = Math.random() * 24 + 20;
+                note.style.width = `${size}px`;
+                note.style.height = `${size}px`;
+                note.className = 'absolute bottom-0 text-pink-400 opacity-60 animate-fall';
+                note.style.left = `${Math.random() * 80 + 10}%`;
+                note.style.animationDuration = `${Math.random() * 4 + 3}s`;
+                note.style.animationDelay = `${Math.random() * 2}s`;
+                note.style.animationDirection = 'reverse';
+                container.appendChild(note);
+            }
+            lucide.createIcons({root: container});
+            
+            setTimeout(nextStep, 4500);
+        });
+
+        // --- Screen 4 Logic (Generator) ---
+        const REASONS = [
+            "Your beautiful, radiant smile ✨", "The way you laugh at my jokes 😂", "Your pure, incredibly kind heart ❤️", 
+            "How you make everyday magical 🌟", "Your adorable nicknames 🥺", "The way your eyes sparkle 👀",
+            "Because you are my absolute best friend 👫", "Everything about you! 💖"
+        ];
+        
+        let spinInterval;
+        document.getElementById('btn-spin-reason').addEventListener('click', function() {
+            this.classList.add('hidden');
+            const textEl = document.getElementById('generator-text');
+            textEl.classList.add('blur-[2px]', 'scale-110', 'opacity-60');
+            
+            spinInterval = setInterval(() => {
+                textEl.innerText = REASONS[Math.floor(Math.random() * REASONS.length)];
+            }, 80);
+
+            setTimeout(() => {
+                clearInterval(spinInterval);
+                textEl.innerText = REASONS[REASONS.length - 1];
+                textEl.classList.remove('blur-[2px]', 'scale-110', 'opacity-60');
+                document.getElementById('generator-next-container').classList.remove('hidden');
+                setTimeout(() => {
+                    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                }, 100);
+            }, 3000);
+        });
+
+        // --- Screen 5 Logic (Stars) ---
+        document.getElementById('btn-lights-off').addEventListener('click', function() {
+            document.getElementById('screen-5').classList.remove('bg-sky-100');
+            document.getElementById('screen-5').classList.add('bg-slate-950');
+            
+            document.getElementById('lights-on-content').classList.add('hidden');
+            document.getElementById('stars-bg').classList.remove('hidden');
+            
+            setTimeout(() => {
+                const offContent = document.getElementById('lights-off-content');
+                offContent.classList.remove('hidden');
+                // Allow display to update before modifying opacity/transform
+                requestAnimationFrame(() => {
+                    offContent.classList.remove('opacity-0', 'translate-y-10');
+                    offContent.classList.add('opacity-100', 'translate-y-0');
+                });
+            }, 1500);
+        });
+
+        // --- Screen 6 Logic (Memories) ---
+        function initMemories() {
+            const cards = [
+                { title: "The First Glance", img: "https://images.unsplash.com/photo-1522673607200-164d1b6ce486?w=600&q=80", desc: "The exact moment my heart whispered, 'That's the one.' Everything else just faded away." },
+                { title: "Our Best Laughs", img: "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&q=80", desc: "Those endless, stomach-aching laughs. Your joy is my absolute favorite sound in the world." },
+                { title: "Our Future", img: "https://images.unsplash.com/photo-1518199266791-5375a83190b7?w=600&q=80", desc: "So many more beautiful chapters waiting to be written. I can't wait to build them all with you." }
+            ];
+
+            const container = document.getElementById('polaroid-container');
+            let anyFlipped = false;
+
+            cards.forEach((card, idx) => {
+                const tilt = idx === 0 ? '-rotate-3' : idx === 1 ? 'rotate-2' : '-rotate-2';
+                const cardHtml = `
+                <div class="card-flip-container h-[320px] md:h-[420px] w-full cursor-pointer animate-slide-up hover:z-20 transition-transform duration-300 hover:scale-105 ${tilt} hover:rotate-0" style="animation-delay: ${0.4 + (idx * 0.2)}s">
+                    <div class="card-flip-inner rounded-xl polaroid-inner">
+                        <div class="card-face card-front p-3 md:p-4 flex flex-col border border-gray-200">
+                            <div class="w-full h-[75%] md:h-[80%] bg-gray-200 rounded-lg overflow-hidden shadow-inner relative">
+                                <img src="${card.img}" alt="${card.title}" class="w-full h-full object-cover" />
+                                <div class="absolute inset-0 bg-amber-900/10 mix-blend-overlay"></div>
+                            </div>
+                            <div class="flex-1 flex items-center justify-center pt-2 md:pt-4">
+                                <p class="font-caveat text-2xl md:text-3xl font-bold text-slate-800">${card.title}</p>
+                            </div>
+                        </div>
+                        <div class="card-face card-back p-6 md:p-8 flex flex-col items-center justify-center border border-amber-900/50">
+                            <i data-lucide="heart" class="w-8 h-8 md:w-10 md:h-10 text-amber-200/50 mb-4 md:mb-6"></i>
+                            <h3 class="text-xl md:text-2xl font-playfair font-bold mb-3 md:mb-4 text-amber-100 text-center">${card.title}</h3>
+                            <p class="text-center text-amber-50/90 text-base md:text-lg leading-relaxed font-poppins font-light">${card.desc}</p>
+                        </div>
+                    </div>
+                </div>`;
+                
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = cardHtml;
+                const cardEl = tempDiv.firstElementChild;
+                
+                cardEl.addEventListener('click', function() {
+                    const inner = this.querySelector('.polaroid-inner');
+                    inner.classList.toggle('card-flip-active');
+                    
+                    if (!anyFlipped) {
+                        anyFlipped = true;
+                        document.getElementById('btn-memories-next').classList.remove('opacity-0', 'pointer-events-none');
+                        document.getElementById('btn-memories-next').classList.add('opacity-100');
+                        setTimeout(() => {
+                            window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                        }, 300);
+                    }
+                });
+                
+                container.appendChild(cardEl);
+            });
+            lucide.createIcons({root: container});
+        }
+
+        // --- Screen 7 Logic (Coupons) ---
+        function initCoupons() {
+            const coupons = [
+                "1 Infinite Tight Hug 🤗",
+                "1 Romantic Date Night 🍷",
+                "Win Any Argument (Once!) 👑"
+            ];
+            
+            const container = document.getElementById('coupons-container');
+            let claimedCount = 0;
+
+            coupons.forEach((text, idx) => {
+                const couponHtml = `
+                <div class="coupon-item relative overflow-hidden p-5 md:p-8 rounded-2xl border-2 transition-all duration-500 cursor-pointer flex items-center justify-between group bg-gradient-to-r from-rose-100 to-white border-rose-300 text-rose-950 hover:shadow-[0_15px_30px_rgba(244,63,94,0.3)] hover:-translate-y-2" style="animation-delay: ${idx * 0.2}s">
+                    <div class="flex items-center gap-3 md:gap-5 z-10 w-[70%] md:w-full">
+                        <i data-lucide="ticket" class="coupon-icon w-8 h-8 md:w-10 md:h-10 flex-shrink-0 transition-colors text-rose-500 group-hover:text-rose-600"></i>
+                        <span class="coupon-text font-playfair font-bold text-lg md:text-2xl text-left transition-all">${text}</span>
+                    </div>
+                    
+                    <span class="coupon-action text-rose-400 font-medium text-xs md:text-base border border-rose-300 px-2 py-1 md:px-4 md:py-2 rounded-full whitespace-nowrap group-hover:bg-rose-50 transition-colors">Tap to Claim</span>
+                    
+                    <!-- Checkmark (hidden initially) -->
+                    <i data-lucide="check-circle" class="coupon-check hidden w-8 h-8 md:w-10 md:h-10 text-green-500 z-10 flex-shrink-0 animate-pop"></i>
+                    
+                    <div class="absolute left-0 top-0 bottom-0 w-2 md:w-3 border-r-4 border-dashed border-rose-200/60"></div>
+                </div>`;
+                
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = couponHtml;
+                const couponEl = tempDiv.firstElementChild;
+                
+                couponEl.addEventListener('click', function() {
+                    if (!this.dataset.claimed) {
+                        this.dataset.claimed = "true";
+                        
+                        this.classList.remove('bg-gradient-to-r', 'from-rose-100', 'to-white', 'border-rose-300', 'text-rose-950', 'hover:shadow-[0_15px_30px_rgba(244,63,94,0.3)]', 'hover:-translate-y-2');
+                        this.classList.add('bg-rose-900/40', 'border-rose-800/50', 'text-rose-500/80', 'scale-95');
+                        
+                        this.querySelector('.coupon-icon').classList.remove('text-rose-500', 'group-hover:text-rose-600');
+                        this.querySelector('.coupon-icon').classList.add('text-rose-800');
+                        
+                        this.querySelector('.coupon-text').classList.add('line-through', 'decoration-rose-500', 'decoration-2', 'opacity-70');
+                        
+                        this.querySelector('.coupon-action').classList.add('hidden');
+                        this.querySelector('.coupon-check').classList.remove('hidden');
+                        
+                        claimedCount++;
+                        if (claimedCount === coupons.length) {
+                            document.getElementById('btn-coupons-next').classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                            document.getElementById('btn-coupons-next').classList.add('opacity-100', 'translate-y-0');
+                            setTimeout(() => {
+                                window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+                            }, 300);
+                        }
+                    }
+                });
+                
+                container.appendChild(couponEl);
+            });
+            lucide.createIcons({root: container});
+        }
+
+        // --- Screen 8 Logic (Confetti) ---
+        function initConfetti() {
+            document.getElementById('confetti-container').classList.remove('hidden');
+        }
+
+        // --- Screen 9 Logic (Envelope) ---
+        function initEnvelope() {
+            const emojis = ['🌸', '💕', '✨', '💖', '🌙', '⭐', '🌷'];
+            const container = document.getElementById('emojis-container');
+            
+            emojis.forEach((emoji, i) => {
+                const el = document.createElement('div');
+                el.className = 'absolute animate-float text-3xl md:text-5xl opacity-60 pointer-events-none';
+                el.style.top = `${Math.random() * 80 + 10}%`;
+                el.style.left = `${Math.random() * 80 + 10}%`;
+                el.style.animationDelay = `${i * 0.5}s`;
+                el.style.animationDuration = `${Math.random() * 3 + 3}s`;
+                el.innerText = emoji;
+                container.appendChild(el);
+            });
+
+            document.getElementById('envelope-wrapper').addEventListener('click', function() {
+                if (!this.classList.contains('open')) {
+                    this.classList.add('open');
+                    document.getElementById('envelope-prompt').classList.add('hidden');
+                    document.getElementById('env-wax-seal').classList.add('hidden');
+                    
+                    setTimeout(() => {
+                        document.getElementById('env-letter').classList.add('expanded');
+                        document.getElementById('letter-content').classList.remove('opacity-0');
+                        document.getElementById('letter-content').classList.add('opacity-100');
+                        document.getElementById('letter-seal').classList.add('hidden');
+                    }, 1200);
+                }
+            });
+        }
+
+    </script>
+</body>
+</html>
